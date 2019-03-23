@@ -1,0 +1,91 @@
+syntax = 'proto3';
+
+package padt.brep.proto;
+
+message Vector3 {
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}
+
+message Vector2 {
+	double u = 1;
+	double v = 2;
+}
+
+message Facet {
+	int64 i = 1;
+	int64 j = 2;
+	int64 k = 3;
+}
+
+message Point {
+	int64 id = 1;
+	Vector3 location = 2;
+}
+
+message Curve {
+	int64 id = 1;
+	repeated Vector3 points = 2;
+	repeated Vector3 tangents = 3;
+	repeated double parameters = 4;
+	bool is_param_reversed = 5;
+}
+
+message Surface {
+	int64 id = 1;
+	repeated Vector3 points = 2;
+	repeated Vector3 normals = 3;
+	repeated Vector2 parameters = 4;
+	repeated Facet triangles = 5;
+}
+
+message Assembly {
+	int64 id = 1;
+	string source = 2;
+	repeated int64 parts = 3;
+}
+
+message Part {
+	int64 id = 1;
+	repeated int64 bodies = 2;
+}
+
+message Body {
+	int64 id = 1;
+	repeated int64 faces = 2;
+	repeated int64 shells = 3;
+}
+
+message Face {
+	int64 id = 1;
+	Surface surface = 2;
+	repeated int64 edges = 3;
+	repeated int64 loops = 4;
+}
+
+message Edge {
+	int64 id = 1;
+	Curve curve = 2;
+	int64 start = 3;
+	int64 end = 4;
+}
+
+message Vertex {
+	int64 id = 1;
+	Point point = 2;
+}
+
+message Loop {
+	int64 id = 1;
+	repeated int64 edges = 2;
+}
+
+message Shell {
+	int64 id = 1;
+	repeated int64 faces = 2;
+}
+
+
+
+

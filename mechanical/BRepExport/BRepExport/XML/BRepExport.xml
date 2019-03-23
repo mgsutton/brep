@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<extension version="1" name="BRep Export">
+  <guid>5ED7BE11-A18C-4246-A250-6DBF59C5D032</guid>
+  <author>Matt Sutton, PADT</author>
+  <description>
+    Extracts the brep data from an ANSYS model and writes it to a file.
+  </description>
+  <script src="main.py" compiled="true"/>
+  <!-- INSERT ASSEMBLY HERE -->
+  <interface context="Mechanical">
+    <images>images</images>
+    <toolbar name="BRepExport" 
+             caption="BRep Export">
+      <entry name="BRepExportTool"
+             caption="Export"
+             icon="ExportBRep">
+        <callbacks>
+          <onclick>ExportBRepData</onclick>
+        </callbacks>
+      </entry>             
+    </toolbar>
+  </interface>
+</extension>
