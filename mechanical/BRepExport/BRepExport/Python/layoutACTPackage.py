@@ -2,7 +2,7 @@ import sys
 import os
 import shutil
 
-ExtensionName="HonCrack"
+ExtensionName="BRepExport"
 def cleanPackageDirectory(packageDir):
 	if os.path.isdir(packageDir):
 		print "Cleaning the existing package directory"
@@ -69,13 +69,13 @@ def copyXMLFiles(productsDir, packageDir, BuildType):
 	xmlDir = os.path.join(internalExtensionDir, "xml")
 	for f in os.listdir(xmlSourceDir):
 		if os.path.isfile(os.path.join(xmlSourceDir, f)):
-			if f=="HonCrack.xml":
+			if f=="BRepExport.xml":
 				if BuildType=="Release":
 					releaseBuildOfExtensionXML(os.path.join(xmlSourceDir, f), os.path.join(extensionDir, f))
 				else:
 					shutil.copyfile(os.path.join(xmlSourceDir, f), os.path.join(extensionDir, f))
 				print "Copying XML file: " + f
-			if f=="HonCrackDefaults.xml":
+			if f=="BRepExportDefaults.xml":
 				shutil.copy(os.path.join(xmlSourceDir, f), os.path.join(xmlDir, f))
 				print "Copying XML file: " + f
 
@@ -95,7 +95,7 @@ def copyHTMLFiles(productsDir, packageDir):
 def releaseBuildOfExtensionXML(xmlPath, destination):
 	print "Augmenting the release XML build"
 	with open(xmlPath,'r') as source:
-		data=source.read().replace("<!-- INSERT ASSEMBLY HERE -->", "<assembly src=\"bin/HonCrack.dll\" namespace=\"PADT\"/>")
+		data=source.read().replace("<!-- INSERT ASSEMBLY HERE -->", "<assembly src=\"bin/BRepExport.dll\" namespace=\"PADT\"/>")
 		with open(destination,'w') as target:
 			target.write(data)
 
@@ -109,7 +109,7 @@ def debugBuildOfMainPython(mainPyPath, debugAssemblyPath, destination):
 def releaseBuildOfMainPython(mainPyPath, destination):
 	print "Creating the release build of the main.py file"
 	with open(mainPyPath, 'r') as source:
-		data=source.read().replace("#ASSEMBLY_PATH","assemblyPath = System.IO.Path.Combine(ExtAPI.ExtensionManager.CurrentExtension.InstallDir, \"bin\", \"HonyCrack.dll\")")
+		data=source.read().replace("#ASSEMBLY_PATH","assemblyPath = System.IO.Path.Combine(ExtAPI.ExtensionManager.CurrentExtension.InstallDir, \"bin\", \"BRepExport.dll\")")
 		with open(destination,'w') as target:
 			target.write(data)
 
@@ -139,7 +139,7 @@ def copyPythonFiles(productsDir, packageDir, BuildType):
 					releaseBuildOfMainPython(source, destination)
 				else:
 					print "Building debug build of main.py"
-					debugAssembly = os.path.join(productsDir,"HonCrack.dll")
+					debugAssembly = os.path.join(productsDir,"BRepExport.dll")
 					debugBuildOfMainPython(source, debugAssembly, destination)
 
 def copyDocumentation(productsDir, packageDir):

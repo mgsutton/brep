@@ -35,52 +35,54 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ans.Core">
-      <HintPath>D:\ANSYS\v193\Framework\bin\Win64\Ans.Core.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Framework\bin\Win64\Ans.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ans.UI.Toolkit">
-      <HintPath>D:\ANSYS\v193\Framework\bin\Win64\Ans.UI.Toolkit.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Framework\bin\Win64\Ans.UI.Toolkit.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ans.UI.Toolkit.Base">
-      <HintPath>D:\ANSYS\v193\Framework\bin\Win64\Ans.UI.Toolkit.Base.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Framework\bin\Win64\Ans.UI.Toolkit.Base.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ans.UI.Toolkit.Interfaces">
-      <HintPath>D:\ANSYS\v193\Framework\bin\Win64\Ans.UI.Toolkit.Interfaces.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Framework\bin\Win64\Ans.UI.Toolkit.Interfaces.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ans.Utilities">
-      <HintPath>D:\ANSYS\v193\Framework\bin\Win64\Ans.Utilities.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Framework\bin\Win64\Ans.Utilities.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ansys.ACT.Core">
-      <HintPath>D:\ANSYS\v193\Addins\ACT\bin\Win64\Ansys.ACT.Core.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Addins\ACT\bin\Win64\Ansys.ACT.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ansys.ACT.Interfaces">
-      <HintPath>D:\ANSYS\v193\Addins\ACT\bin\Win64\Ansys.ACT.Interfaces.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Addins\ACT\bin\Win64\Ansys.ACT.Interfaces.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ansys.ACT.Interop">
-      <HintPath>D:\ANSYS\v193\Addins\ACT\bin\Win64\Ansys.ACT.Interop.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Addins\ACT\bin\Win64\Ansys.ACT.Interop.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ansys.ACT.WB1">
-      <HintPath>D:\ANSYS\v193\aisol\bin\winx64\Ansys.ACT.WB1.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\aisol\bin\winx64\Ansys.ACT.WB1.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ansys.ACT.WB1.MainThreadAutomation">
-      <HintPath>D:\ANSYS\v193\aisol\bin\winx64\Ansys.ACT.WB1.MainThreadAutomation.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\aisol\bin\winx64\Ansys.ACT.WB1.MainThreadAutomation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ansys.ACT.WorkBench">
-      <HintPath>D:\ANSYS\v193\Addins\ACT\bin\Win64\Ansys.ACT.WorkBench.dll</HintPath>
+      <HintPath>C:\Program Files\ANSYS Inc\v192\Addins\ACT\bin\Win64\Ansys.ACT.WorkBench.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Ansys.Common.Interop.193">
-      <HintPath>D:\ANSYS\v193\aisol\bin\winx64\Ansys.Common.Interop.193.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Ansys.Common.Interop.192">
+      <HintPath>C:\Program Files\ANSYS Inc\v192\aisol\bin\winx64\Ansys.Common.Interop.192.dll</HintPath>
+    </Reference>
+    <Reference Include="geometry3Sharp, Version=1.0.324.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\geometry3Sharp.1.0.324\lib\net45\geometry3Sharp.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.7.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>packages\Google.Protobuf.3.7.0\lib\net45\Google.Protobuf.dll</HintPath>
@@ -105,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\RecentFolderDataStore.cs" />
+    <Compile Include="Core\Utilities.cs" />
     <Compile Include="Exporter\Exporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -130,4 +133,7 @@
     <Error Condition="!Exists('packages\Grpc.Tools.1.19.0\build\Grpc.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Grpc.Tools.1.19.0\build\Grpc.Tools.targets'))" />
   </Target>
   <Import Project="packages\Grpc.Tools.1.19.0\build\Grpc.Tools.targets" Condition="Exists('packages\Grpc.Tools.1.19.0\build\Grpc.Tools.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>python $(ProjectDir)Python\layoutACTPackage.py $(TargetDir) $(SolutionDir)..\MechanicalExtension\ANSYS_R192 $(ConfigurationName)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

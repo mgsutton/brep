@@ -54,14 +54,14 @@ message Part {
 message Body {
 	int64 id = 1;
 	repeated int64 faces = 2;
-	repeated int64 shells = 3;
+	repeated Shell shells = 3;
 }
 
 message Face {
 	int64 id = 1;
 	Surface surface = 2;
 	repeated int64 edges = 3;
-	repeated int64 loops = 4;
+	repeated Loop loops = 4;
 }
 
 message Edge {

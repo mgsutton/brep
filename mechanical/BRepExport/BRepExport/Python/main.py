@@ -6,4 +6,4 @@ clr.AddReferenceToFileAndPath(assemblyPath)
 from PADT import *
 
 def ExportBRepData(ext):
-	Exporter.Export(ExtAPI)
+	BRepExport.Exporter.Export(ExtAPI)
