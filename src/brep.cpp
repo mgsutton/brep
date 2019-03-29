@@ -46,22 +46,7 @@ void BRep::reset() {
   FaceBBoxCache_.clear();
   EdgeBBoxCache_.clear();
 }
-///////////////////////////////////////////////////////////////////////////////
-/// <summary>	This function will read the contents of a binary file containing
-/// 					a series of BRepEntity messages and
-/// build up a corresponding 					BRep
-/// datastructure.
-/// </summary>
-///
-///
-/// <remarks>	Sutton, 3/25/2019. </remarks>
-///
-/// <param name="fileName">	Filename of the file containing the
-/// BRepEntities.
-/// </param>
-///
-/// <returns>	True if it succeeds, false if it fails. </returns>
-///////////////////////////////////////////////////////////////////////////////
+
 
 bool BRep::buildBRepFromFile(const std::string &fileName) {
   // See if we can open the file

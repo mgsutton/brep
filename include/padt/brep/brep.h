@@ -1,6 +1,27 @@
+/*
+ MIT License
+ Copyright (c) 2019 Matt Sutton
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ © 2019 GitHub, Inc.
+*/
+
 #ifndef PADT_BREP_H
 #define PADT_BREP_H
-// PADT BRep
+
 #include <Eigen/Dense>
 #include <boost/range/adaptor/map.hpp>
 #include <map>
@@ -9,19 +30,18 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include "assembly.h"
-#include "body.h"
 #include "brep.pb.h"
-#include "edge.h"
 #include "entity.h"
 #include "entityRange.h"
-#include "face.h"
 #include "handle.h"
-#include "part.h"
-#include "vertex.h"
+
 
 namespace padt::brep {
-
+/**
+ * A static, facet based boundary representation data structure for CAD
+ * geometry.  All BRep entities are accessed via a handle interface. The
+ * actual geometry is stored 
+ */
 class BRep {
  public:
   // Default constructors, move constructors and assignment operators
