@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ansys.ACT.Interfaces.Geometry;
 using Ansys.ACT.Interfaces.Mechanical;
 using Ansys.UI.Toolkit;
+using g3;
 using Google.Protobuf;
 using Padt.Brep.Proto;
 using PADT.BRepExport.Core;
@@ -18,22 +19,36 @@ namespace PADT.BRepExport
     private class Implemenation
     {
       public IMechanicalExtAPI ExtAPI { get; set; }
-      private MemoryStream buffer { get; set; }
+      
       public void Write(string outputPath)
       {
         var gd = ExtAPI.DataModel.GeoData;
-        using (buffer = new MemoryStream())
+        List<BRepEntity> entities = new List<BRepEntity>();
+        int assemblyId = 1;
+        foreach (var assembly in gd.Assemblies)
         {
-          int assemblyId = 1;
-          foreach (var assembly in gd.Assemblies)
-          {
-            WriteAssembly(assembly, assemblyId++);
-          }
+          entities.AddRange(BuildAssemblyMessages(assembly, assemblyId++));
         }
+        try
+        {
+          using(FileStream fs = new FileStream(outputPath, FileMode.Create))
+          {
+            foreach(var entity in entities)
+            {
+              entity.WriteDelimitedTo(fs);
+            }
+          }
+        } catch(IOException e)
+        {
+          ExtAPI.Log.WriteError("Cannot export BRep. Reason:");
+          ExtAPI.Log.WriteError(e.Message);
+        }        
       }
 
-      private void WriteAssembly(IGeoAssembly assembly, int id)
+      private List<BRepEntity>
+        BuildAssemblyMessages(IGeoAssembly assembly, int id)
       {
+        List<BRepEntity> entities = new List<BRepEntity>();
         var protoAssembly = new Assembly
         {
           Id = id,
@@ -42,15 +57,21 @@ namespace PADT.BRepExport
         var partIds = (from p in assembly.Parts
                       select (long)p.Id).ToList();
         protoAssembly.Parts.AddRange(partIds);
-        protoAssembly.WriteDelimitedTo(buffer);
+        entities.Add(new BRepEntity
+        {
+          Assembly = protoAssembly
+        });
         foreach (var part in assembly.Parts)
         {
-          WritePart(part);
+          entities.AddRange(BuildPartMessages(part));
         }
+        return entities;
       }
 
-      private void WritePart(IGeoPart part)
+      private List<BRepEntity>
+        BuildPartMessages(IGeoPart part)
       {
+        List<BRepEntity> entities = new List<BRepEntity>();
         var protoPart = new Part
         {
           Id = part.Id
@@ -58,21 +79,29 @@ namespace PADT.BRepExport
         var bodyIds = (from b in part.Bodies
                        select (long)b.Id).ToList();
         protoPart.Bodies.AddRange(bodyIds);
-        protoPart.WriteDelimitedTo(buffer);
+        entities.Add(new BRepEntity
+        {
+          Part = protoPart
+        });
+
         foreach(var body in part.Bodies)
         {
-          WriteBody(body as IGeoBody);
+          entities.AddRange(BuildBodyMessages(body as IGeoBody));
         }
+        return entities;
       }
 
-      private void WriteBody(IGeoBody body)
+      private List<BRepEntity>
+        BuildBodyMessages(IGeoBody body)
       {
+        List<BRepEntity> entities = new List<BRepEntity>();
         var protoBody = new Body
         {
           Id = body.Id
         };
         var faceIds = (from f in body.Faces
                        select (long)f.Id).ToList();
+        protoBody.Faces.AddRange(faceIds);
         foreach(var s in body.Shells)
         {
           var protoShell = new Shell();
@@ -81,35 +110,41 @@ namespace PADT.BRepExport
           protoShell.Faces.AddRange(shellFaceIds);
           protoBody.Shells.Add(protoShell);
         }
-        protoBody.WriteDelimitedTo(buffer);
+        entities.Add(new BRepEntity
+        {
+          Body = protoBody
+        });
         foreach(var f in body.Faces)
         {
-          WriteFace(f as IGeoFace);
+          entities.AddRange(BuildFaceMessages(f as IGeoFace));
         }
         foreach(var e in body.Edges)
         {
-          WriteEdge(e as IGeoEdge);
+          entities.AddRange(BuildEdgeMessages(e as IGeoEdge));
         }
         foreach(var v in body.Vertices)
         {
-          WriteVertex(v as IGeoVertex);
+          entities.AddRange(BuildVertexMessages(v as IGeoVertex));
         }
+        return entities;
       }
 
-      private void WriteFace(IGeoFace face)
+      private List<BRepEntity>
+        BuildFaceMessages(IGeoFace face)
       {
-        
-
+        List<BRepEntity> entities = new List<BRepEntity>();
         var protoSurface = new Surface();
-        foreach(var triple in face.Points.SplitToArray(3))
+        Vector3d[] p = BufferUtil.ToVector3d(face.Points);
+        Vector3d[] n = BufferUtil.ToVector3d(face.Normals);
+        foreach (var v in p)
         {
           var protoPoint = new Vector3
           {
-            X = triple[0],
-            Y = triple[1],
-            Z = triple[2]
+            X = v.x,
+            Y = v.y,
+            Z = v.z
           };
-          var uv = face.ParamAtPoint(triple);
+          var uv = face.ParamAtPoint(new double[]{ v.x,v.y,v.z});
           var protoUV = new Vector2
           {
             U = uv[0],
@@ -118,33 +153,60 @@ namespace PADT.BRepExport
           protoSurface.Points.Add(protoPoint);
           protoSurface.Parameters.Add(protoUV);
         }
-        foreach (var triple in face.Normals.SplitToArray(3))
+        foreach (var v in n)
         {
           var protoNormal = new Vector3
           {
-            X = triple[0],
-            Y = triple[1],
-            Z = triple[2]
+            X = v.x,
+            Y = v.y,
+            Z = v.z
           };
           protoSurface.Normals.Add(protoNormal);
         }
         // Get the indices into the proper form
-        var indices = 
-          Utilities.ConvertANSYSFacetListToDMesh(
-            face.Points, 
-            face.Indices, 
-            face.Normals);
-        foreach(var triple in indices.Chunk(3))
+        int i = 0;
+        while (i < face.Indices.Length)
         {
-          var facetIndices = triple.ToList();
-          var protoFacet = new Facet
+          if (face.Indices[i] == 3)
           {
-            I = facetIndices[0],
-            J = facetIndices[1],
-            K = facetIndices[2]
-          };
-          protoSurface.Triangles.Add(protoFacet);
+            int iv0 = face.Indices[++i];
+            int iv1 = face.Indices[++i];
+            int iv2 = face.Indices[++i];
+            Vector3d V0, V1, V2, N0;
+            V0 = p[iv0];
+            V1 = p[iv1];
+            V2 = p[iv2];
+            N0 = n[iv0];
+            Vector3d edge1 = V1 - V0;
+            Vector3d edge2 = V2 - V0;
+            Vector3d normal = edge1.Cross(edge2);
+            if (normal.Dot(N0) > 0)
+            {
+              protoSurface.Triangles.Add(new Facet
+              {
+                I = iv0,
+                J = iv1,
+                K = iv2
+              });
+            }
+            else
+            {
+              protoSurface.Triangles.Add(new Facet
+              {
+                I = iv0,
+                J = iv2,
+                K = iv1
+              });
+            }
+          }
+          else
+          {
+            throw new InvalidDataException("Cannot convert an ANSYS facet " +
+              "list with a facet containing more than 3 vertices.");
+          }
+          i++;
         }
+               
 
         var protoFace = new Face
         {
@@ -164,18 +226,67 @@ namespace PADT.BRepExport
           protoLoop.Edges.AddRange(loopEdges);
           protoFace.Loops.Add(protoLoop);
         }
-        protoFace.WriteDelimitedTo(buffer);
+        entities.Add(new BRepEntity
+        {
+          Face = protoFace
+        });
+        return entities;
       }
 
 
-      private void WriteEdge(IGeoEdge edge)
+      private List<BRepEntity> 
+        BuildEdgeMessages(IGeoEdge edge)
       {
-
+        List<BRepEntity> entities = new List<BRepEntity>();
+        var protoCurve = new Curve();
+        foreach (var triple in edge.Points.SplitToArray(3))
+        {
+          var protoPoint = new Vector3
+          {
+            X = triple[0],
+            Y = triple[1],
+            Z = triple[2]
+          };
+          double s = edge.ParamAtPoint(triple);
+          
+          protoCurve.Points.Add(protoPoint);
+          protoCurve.Parameters.Add(s);
+        }
+        protoCurve.IsParamReversed = edge.IsParamReversed;
+        var protoEdge = new Edge
+        {
+          Curve = protoCurve,
+          Id = edge.Id,
+          Start = edge.StartVertex == null ? -1 : edge.StartVertex.Id,
+          End = edge.EndVertex == null ? -1: edge.EndVertex.Id
+        };
+        entities.Add(new BRepEntity
+        {
+          Edge = protoEdge
+        });
+        return entities;
       }
 
-      private void WriteVertex(IGeoVertex vertex)
+      private List<BRepEntity>
+        BuildVertexMessages(IGeoVertex vertex)
       {
-
+        List<BRepEntity> entities = new List<BRepEntity>();
+        var protoPoint = new Vector3
+        {
+          X = vertex.X,
+          Y = vertex.Y,
+          Z = vertex.Z
+        };
+        Vertex protoVertex = new Vertex
+        {
+          Id = vertex.Id,
+          Point = protoPoint,
+        };
+        entities.Add(new BRepEntity
+        {
+          Vertex = protoVertex
+        });
+        return entities;
       }
     }
 

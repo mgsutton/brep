@@ -31,9 +31,11 @@ else()
     message(FATAL_ERROR "Could not find the eigen libraries...")
 endif()
 
-find_package(Protobuf REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 
 
 
 add_subdirectory(src)
-#add_subdirectory(apps)
+add_subdirectory(apps)

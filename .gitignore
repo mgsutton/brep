@@ -37,3 +37,4 @@
 /mechanical/BRepExport/BRepExport/packages/**
 /mechanical/BRepExport/BRepExport/.vs/**
 /mechanical/BRepExport/MechanicalExtension/**
+/testInputs/**

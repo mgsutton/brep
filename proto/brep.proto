@@ -19,11 +19,6 @@ message Facet {
 	int64 k = 3;
 }
 
-message Point {
-	int64 id = 1;
-	Vector3 location = 2;
-}
-
 message Curve {
 	int64 id = 1;
 	repeated Vector3 points = 2;
@@ -73,7 +68,7 @@ message Edge {
 
 message Vertex {
 	int64 id = 1;
-	Point point = 2;
+	Vector3 point = 2;
 }
 
 message Loop {
@@ -84,6 +79,17 @@ message Loop {
 message Shell {
 	int64 id = 1;
 	repeated int64 faces = 2;
+}
+
+message BRepEntity {
+	oneof entity {
+		Assembly assembly = 1;
+		Part part = 2;
+		Body body = 3;
+		Face face = 4;
+		Edge edge = 5;
+		Vertex vertex = 6;
+	}
 }
 
 
